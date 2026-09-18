@@ -1,0 +1,17 @@
+Turn each scene into a shot. Output STRICT JSON only.
+
+SCRIPT: {{ script }}
+
+Return JSON:
+{
+  "shots": [
+    {
+      "scene_id": 1,
+      "shot_type": "<wide | medium | close-up | over-shoulder | POV>",
+      "camera_move": "<static | push-in | pan-left | handheld | orbit>",
+      "composition": "<rule-of-thirds framing, subject placement>",
+      "transition": "<cut | dissolve | whip-pan | match-cut>"
+    },
+    ...
+  ]
+}

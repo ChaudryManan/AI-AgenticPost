@@ -1,0 +1,59 @@
+# ─────────────────────────────────────────────────────────────────────
+# Per-platform constraints.
+# Enforced by validators/platform_rules.py + nodes/text/platform_formatter.py.
+# ─────────────────────────────────────────────────────────────────────
+
+linkedin:
+  content_types: [text, video]
+  max_chars: 3000
+  hashtag_max: 5
+  links_in_body: false
+  aspect: "1:1"
+  tone: professional
+  thread: false
+
+x:
+  content_types: [text, video]
+  max_chars: 280
+  hashtag_max: 2
+  links_in_body: true
+  aspect: "16:9"
+  tone: punchy
+  thread: true
+
+instagram:
+  content_types: [text, video]
+  max_chars: 2200
+  hashtag_max: 30
+  links_in_body: false
+  first_comment_hashtags: true
+  aspect: "4:5"
+  tone: casual
+  thread: false
+
+facebook:
+  content_types: [text, video]
+  max_chars: 63206
+  hashtag_max: 3
+  links_in_body: true
+  aspect: "1:1"
+  tone: casual
+  thread: false
+
+youtube:
+  content_types: [video]
+  max_chars: 5000
+  hashtag_max: 3
+  links_in_body: true
+  aspect: "9:16"
+  tone: informative
+  thread: false
+
+tiktok:
+  content_types: [video]
+  max_chars: 2200
+  hashtag_max: 5
+  links_in_body: false
+  aspect: "9:16"
+  tone: playful
+  thread: false

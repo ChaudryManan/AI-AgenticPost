@@ -1,0 +1,13 @@
+Split the post into 3–8 carousel slides. One idea per slide. First slide is
+the cover, last slide is the CTA. Output STRICT JSON only.
+
+BODY:
+{{ body }}
+
+Return JSON:
+{
+  "slides": [
+    {"index": 0, "title": "<2-5 words>", "body": "<1-2 sentences>"},
+    ...
+  ]
+}

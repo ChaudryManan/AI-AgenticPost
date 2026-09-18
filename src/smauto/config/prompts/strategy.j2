@@ -1,0 +1,16 @@
+Design the content strategy for this run. Output STRICT JSON only.
+
+REQUEST: {{ request }}
+PLAN: {{ plan }}
+FACTS: {{ facts }}
+PLATFORMS: {{ platforms | join(", ") }}
+
+Return JSON with EXACTLY these keys:
+
+{
+  "hook":      "<first-line scroll-stopper, <120 chars>",
+  "angle":     "<the unique framing this piece takes>",
+  "tone":      "<one of: professional | punchy | casual | informative | playful>",
+  "structure": ["<beat 1>", "<beat 2>", "<beat 3>"],
+  "cta":       "<one-sentence call to action>"
+}

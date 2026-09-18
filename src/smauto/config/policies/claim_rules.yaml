@@ -1,0 +1,15 @@
+# Which claim categories require a source.  Consumed by
+# validators/grounding.py + nodes/text/fact_check.py.
+
+require_source_for:
+  - statistics
+  - medical_claim
+  - financial_claim
+  - performance_benchmark
+
+severity:
+  unsupported_statistic: hard
+  unsupported_medical_claim: hard
+  unsupported_financial_claim: hard
+  unsupported_opinion: soft
+  unsupported_generalization: soft

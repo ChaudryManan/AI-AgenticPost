@@ -1,0 +1,9 @@
+Pick at most {{ max }} hashtags for {{ platform }} that fit the body below.
+Never include banned terms. Output STRICT JSON only.
+
+BODY:
+{{ body }}
+
+BANNED: {{ banned }}
+
+Return JSON: {"hashtags": ["#one", "#two"]}

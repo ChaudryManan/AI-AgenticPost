@@ -1,0 +1,11 @@
+Write the social post copy that accompanies the finished video.
+Output STRICT JSON only.
+
+STRATEGY: {{ strategy }}
+PLATFORMS: {{ platforms | join(", ") }}
+
+Return JSON:
+{
+  "caption":  "<main caption text, platform-agnostic>",
+  "hashtags": ["#one", "#two", "#three"]
+}

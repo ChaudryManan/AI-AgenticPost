@@ -1,0 +1,13 @@
+Final QA pass. Inspect the artifacts summary and platform checks below.
+Output STRICT JSON only.
+
+ARTIFACTS_SUMMARY: {{ summary }}
+PLATFORM_CHECKS: {{ platform_checks }}
+
+Return JSON:
+{
+  "passed": true | false,
+  "failures": [
+    {"stage": "<node name>", "reason": "<what failed>", "severity": "hard" | "soft"}
+  ]
+}

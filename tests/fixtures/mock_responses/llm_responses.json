@@ -1,0 +1,114 @@
+{
+  "planner": {
+    "objective": "Teach developers how RAG grounds LLM answers",
+    "audience": "Backend engineers building chat products",
+    "key_messages": [
+      "RAG reduces hallucinations",
+      "Grounds answers in your data",
+      "Cheap to add"
+    ],
+    "kpi": "saves",
+    "posting_time_utc": "2026-01-15T14:00:00Z",
+    "notes": ""
+  },
+  "research": {
+    "queries": [
+      "what is RAG",
+      "RAG vs fine-tuning",
+      "RAG best practices 2026"
+    ]
+  },
+  "strategy": {
+    "hook": "Your chatbot is confidently wrong.",
+    "angle": "RAG as the fix for hallucination",
+    "tone": "professional",
+    "structure": ["Problem", "Why it happens", "The fix", "Proof", "CTA"],
+    "cta": "Try the demo."
+  },
+  "copywriter": {
+    "variants": [
+      {
+        "hook": "Your chatbot is confidently wrong.",
+        "body": "RAG grounds every answer in your data. Instead of guessing, it retrieves the right passage first, then writes. The result is fewer hallucinations and citations you can audit.",
+        "cta": "See the demo."
+      },
+      {
+        "hook": "RAG in 30 seconds.",
+        "body": "Retrieve, then generate. That's the whole idea.",
+        "cta": "Read the guide."
+      },
+      {
+        "hook": "Stop guessing.",
+        "body": "Your LLM can look things up. Here's how.",
+        "cta": "Learn more."
+      },
+      {
+        "hook": "Hallucinations cost trust.",
+        "body": "Fix them with retrieval.",
+        "cta": "Try it."
+      }
+    ]
+  },
+  "scorer": {
+    "scored": [
+      {"index": 0, "hook_strength": 9, "clarity": 8, "on_brand": 9, "novelty": 8, "total": 34},
+      {"index": 1, "hook_strength": 7, "clarity": 9, "on_brand": 7, "novelty": 6, "total": 29},
+      {"index": 2, "hook_strength": 6, "clarity": 9, "on_brand": 7, "novelty": 5, "total": 27},
+      {"index": 3, "hook_strength": 5, "clarity": 8, "on_brand": 8, "novelty": 4, "total": 25}
+    ]
+  },
+  "platform_format": {
+    "body": "Your chatbot is confidently wrong.\n\nRAG grounds every answer in your data. Instead of guessing, it retrieves the right passage first, then writes.\n\nSee the demo.",
+    "notes": "kept links out of body per LinkedIn rules"
+  },
+  "hashtags": {
+    "hashtags": ["#rag", "#llm", "#ai"]
+  },
+  "slide_splitter": {
+    "slides": [
+      {"index": 0, "title": "The problem", "body": "Chatbots guess when they don't know."},
+      {"index": 1, "title": "Why it happens", "body": "Training data is stale and general."},
+      {"index": 2, "title": "The fix", "body": "Retrieve first, then generate."},
+      {"index": 3, "title": "Try it", "body": "Demo link in the comments."}
+    ]
+  },
+  "fact_check": {"failures": []},
+  "script": {
+    "scenes": [
+      {"id": 1, "vo_text": "Your chatbot just told a user something that is not true.", "duration": 6, "on_screen_text": "Confidently wrong", "beat": "problem"},
+      {"id": 2, "vo_text": "Not because the model is bad. Because it is guessing.", "duration": 6, "on_screen_text": "It's guessing", "beat": "why"},
+      {"id": 3, "vo_text": "RAG changes that. It retrieves the right answer first.", "duration": 6, "on_screen_text": "Retrieve first", "beat": "fix"},
+      {"id": 4, "vo_text": "Then the model writes from that passage, not from memory.", "duration": 6, "on_screen_text": "Generate second", "beat": "how"},
+      {"id": 5, "vo_text": "Fewer hallucinations. Citations you can audit. Try the demo.", "duration": 6, "on_screen_text": "Try the demo", "beat": "cta"}
+    ]
+  },
+  "storyboard": {
+    "shots": [
+      {"scene_id": 1, "shot_type": "close-up", "camera_move": "static", "composition": "center", "transition": "cut"},
+      {"scene_id": 2, "shot_type": "medium", "camera_move": "push-in", "composition": "rule-of-thirds", "transition": "dissolve"},
+      {"scene_id": 3, "shot_type": "wide", "camera_move": "pan-left", "composition": "center", "transition": "cut"},
+      {"scene_id": 4, "shot_type": "medium", "camera_move": "static", "composition": "rule-of-thirds", "transition": "dissolve"},
+      {"scene_id": 5, "shot_type": "wide", "camera_move": "push-in", "composition": "center", "transition": "cut"}
+    ]
+  },
+  "characters": {
+    "appearance": "clean, professional, modern",
+    "wardrobe": "dark turtleneck",
+    "palette": ["#0F172A", "#22D3EE", "#FFFFFF"],
+    "lighting": "soft key from the left, cool fill",
+    "seed": 42
+  },
+  "scene_prompts": {
+    "prompts": [
+      {"scene_id": 1, "prompt": "Close-up of a concerned developer looking at a screen", "negative_prompt": "text, watermark"},
+      {"scene_id": 2, "prompt": "Medium shot of a chatbot interface on a monitor", "negative_prompt": "text, watermark"},
+      {"scene_id": 3, "prompt": "Wide shot of a data pipeline flowing into a chat bubble", "negative_prompt": "text, watermark"},
+      {"scene_id": 4, "prompt": "Medium shot of a developer reviewing retrieved passages", "negative_prompt": "text, watermark"},
+      {"scene_id": 5, "prompt": "Wide shot of an app interface with a 'Try demo' call to action", "negative_prompt": "text, watermark"}
+    ]
+  },
+  "caption_writer": {
+    "caption": "Your chatbot is confidently wrong. RAG is the fix. Demo in the comments.",
+    "hashtags": ["#rag", "#ai", "#llm"]
+  }
+}

@@ -1,0 +1,32 @@
+# ─────────────────────────────────────────────────────────────────────
+# Brand voice + visual identity.
+# Consumed by nodes/video/characters.py, services/media/canvas.py, and
+# validators/brand_checks.py.
+# ─────────────────────────────────────────────────────────────────────
+
+name: "Acme AI"
+
+palette:
+  primary: "#0F172A"
+  accent:  "#22D3EE"
+  bg:      "#FFFFFF"
+  text:    "#0B1220"
+
+fonts:
+  heading: "Inter-Bold"
+  body:    "Inter-Regular"
+
+logo: "assets/brand/logo.png"
+
+tone_rules:
+  - "Confident, not hype-y"
+  - "No emojis in LinkedIn copy"
+  - "Prefer concrete numbers over adjectives"
+  - "Speak in second person; avoid 'we' as opener"
+
+forbidden_phrases:
+  - "game-changer"
+  - "revolutionary"
+  - "unleash"
+  - "cutting-edge"
+  - "seamlessly"

@@ -1,0 +1,48 @@
+{
+  "run_id": "sample_run_abc123",
+  "request": "Write a LinkedIn post about RAG for customer support",
+  "content_type": "text",
+  "topic": "Write a LinkedIn post about RAG for customer support",
+  "platforms": ["linkedin"],
+  "plan": {
+    "objective": "Teach SaaS ops leaders how RAG improves support quality",
+    "audience": "SaaS operations managers",
+    "key_messages": [
+      "RAG grounds answers in your knowledge base",
+      "Fewer hallucinations means fewer escalations"
+    ],
+    "kpi": "saves",
+    "posting_time_utc": "2026-01-15T14:00:00Z",
+    "notes": ""
+  },
+  "research": {
+    "facts": [
+      "RAG combines retrieval with generation to ground answers in source documents."
+    ],
+    "sources": [
+      {
+        "title": "RAG overview",
+        "url": "https://example.com/rag",
+        "content": "Retrieval-augmented generation combines a retriever with a generator.",
+        "score": 0.85
+      }
+    ],
+    "confidence": 0.75,
+    "requery_count": 0
+  },
+  "strategy": {
+    "hook": "Your support bot is confidently wrong.",
+    "angle": "RAG fixes hallucination by retrieving first",
+    "tone": "professional",
+    "structure": ["Problem", "Why it happens", "The fix", "Proof", "CTA"],
+    "cta": "Try the demo."
+  },
+  "qa": {
+    "passed": true,
+    "failures": [],
+    "checked_at": "2026-01-15T13:58:00Z"
+  },
+  "revision_count": 0,
+  "publish_results": [],
+  "errors": []
+}

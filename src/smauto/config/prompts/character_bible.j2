@@ -1,0 +1,14 @@
+Define a style bible so every generated shot looks like it belongs to the
+same film. Output STRICT JSON only.
+
+BRAND: {{ brand }}
+SCRIPT: {{ script }}
+
+Return JSON:
+{
+  "appearance":  "<protagonist look>",
+  "wardrobe":    "<clothing, materials, colors>",
+  "palette":     ["#RRGGBB", "#RRGGBB", "#RRGGBB"],
+  "lighting":    "<key light direction, mood, time of day>",
+  "seed":        <integer for reproducibility>
+}

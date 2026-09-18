@@ -1,0 +1,22 @@
+Write a tight ~30-second short-form video script. Five scenes, roughly 6
+seconds each. Output STRICT JSON only.
+
+STRATEGY: {{ strategy }}
+FACTS: {{ facts }}
+
+Return JSON:
+
+{
+  "scenes": [
+    {
+      "id": 1,
+      "vo_text": "<voiceover line, ~12-18 words>",
+      "duration": 6,
+      "on_screen_text": "<2-6 word overlay>",
+      "beat": "<what this scene accomplishes narratively>"
+    },
+    ... total 5 scenes ...
+  ]
+}
+
+Durations MUST sum to ~30 seconds.

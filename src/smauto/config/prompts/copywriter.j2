@@ -1,0 +1,20 @@
+Write {{ n }} DISTINCT post variants. Each must stand on its own. Output
+STRICT JSON only — no commentary.
+
+STRATEGY: {{ strategy }}
+FACTS: {{ facts }}
+PLATFORMS: {{ platforms | join(", ") }}
+
+Return JSON:
+{
+  "variants": [
+    {
+      "hook": "<first line, scroll-stopper>",
+      "body": "<2-4 paragraphs of substance>",
+      "cta":  "<one-sentence call to action>"
+    },
+    ... {{ n }} total ...
+  ]
+}
+
+Make the variants genuinely different in angle — not paraphrases.

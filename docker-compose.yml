@@ -1,0 +1,54 @@
+services:
+  api:
+    build: .
+    command: uvicorn smauto.api.main:app --host 0.0.0.0 --port 8000 --reload
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@postgres:5432/smauto
+      REDIS_URL: redis://redis:6379/0
+    ports: ["8000:8000"]
+    volumes: ["./:/app"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis:    { condition: service_started }
+
+  worker:
+    build: .
+    command: celery -A smauto.workers.queue.celery_app worker -l info
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@postgres:5432/smauto
+      REDIS_URL: redis://redis:6379/0
+    volumes: ["./:/app"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis:    { condition: service_started }
+
+  beat:
+    build: .
+    command: celery -A smauto.workers.queue.celery_app beat -l info
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@postgres:5432/smauto
+      REDIS_URL: redis://redis:6379/0
+    depends_on: [redis, postgres]
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: smauto
+    ports: ["5432:5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+
+volumes:
+  pgdata: {}
