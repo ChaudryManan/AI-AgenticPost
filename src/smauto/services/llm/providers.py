@@ -30,7 +30,7 @@ async def openai_chat(
     messages: list[dict[str, str]],
     temperature: float = 0.6,
     json_mode: bool = False,
-    timeout: float = 120.0,
+    timeout: float = 45.0,
 ) -> dict[str, Any]:
     key = _require("OPENAI_API_KEY")
 
@@ -62,7 +62,7 @@ async def anthropic_chat(
     messages: list[dict[str, str]],
     temperature: float = 0.6,
     json_mode: bool = False,
-    timeout: float = 120.0,
+    timeout: float = 45.0,
 ) -> dict[str, Any]:
     key = _require("ANTHROPIC_API_KEY")
 
@@ -106,7 +106,7 @@ async def gemini_chat(
     messages: list[dict[str, str]],
     temperature: float = 0.6,
     json_mode: bool = False,
-    timeout: float = 120.0,
+    timeout: float = 45.0,
 ) -> dict[str, Any]:
     key = _require("GEMINI_API_KEY")
 
@@ -135,8 +135,16 @@ async def gemini_chat(
         "https://generativelanguage.googleapis.com/v1beta/models/"
         f"{model}:generateContent?key={key}"
     )
-    async with httpx.AsyncClient(timeout=timeout) as c:
-        r = await c.post(url, json=body)
+    try:
+        async with httpx.AsyncClient(timeout=timeout) as c:
+            r = await c.post(url, json=body)
+    except httpx.TimeoutException as e:
+        # Surface timeouts as a transient ProviderError so the fallback
+        # chain can try the next model instead of crashing.
+        raise ProviderError(f"gemini timeout: {type(e).__name__}") from e
+    except httpx.RequestError as e:
+        raise ProviderError(f"gemini network: {type(e).__name__}: {e}") from e
+
     if r.status_code >= 400:
         raise ProviderError(f"gemini {r.status_code}: {r.text[:500]}")
     return r.json()
@@ -145,7 +153,7 @@ async def openrouter_chat(
     messages: list[dict[str, str]],
     temperature: float = 0.6,
     json_mode: bool = False,
-    timeout: float = 120.0,
+    timeout: float = 45.0,
 ) -> dict[str, Any]:
     key = os.getenv("OPENROUTER_API_KEY")
     if not key:

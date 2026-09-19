@@ -66,3 +66,6 @@ class GraphState(TypedDict, total=False):
     clarification_question: str
     needs_revision: Annotated[bool, or_bool]
     escalate: Annotated[bool, or_bool]
+        # ── human edit feedback ──────────────────────────────────────────
+    revision_feedback: Annotated[str, take_last]      # what the user asked to change
+    manual_edit: Annotated[bool, or_bool]             # flag: this revision came from the user

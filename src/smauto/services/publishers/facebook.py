@@ -1,8 +1,13 @@
 """
 Facebook Page publisher — Graph API v20.
 
-Posts to a Page feed.  Media (photo/video) requires a separate upload flow
-and is not wired here — text-only for now.
+Two modes:
+  • text-only   → POST /{page_id}/feed   with `message`
+  • with image  → POST /{page_id}/photos with `source` (file upload) + `caption`
+
+The `/photos` endpoint creates a photo post that appears in the Page feed
+with the caption as its text. It gets significantly more reach than a
+text-only post.
 """
 from __future__ import annotations
 
@@ -22,6 +27,9 @@ log = get_logger("publisher.facebook")
 
 _GRAPH = "https://graph.facebook.com/v20.0"
 
+# image extensions we know how to upload to /photos
+_IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
+
 
 def _creds() -> tuple[str, str]:
     token = os.getenv("FB_PAGE_TOKEN")
@@ -33,6 +41,14 @@ def _creds() -> tuple[str, str]:
     return token, page_id
 
 
+def _first_image(media: list[Path] | None) -> Path | None:
+    """Return the first media file that looks like an image."""
+    for p in media or []:
+        if p and Path(p).suffix.lower() in _IMAGE_EXTS and Path(p).exists():
+            return Path(p)
+    return None
+
+
 @register("facebook")
 class FacebookPublisher:
     name = "facebook"
@@ -41,33 +57,85 @@ class FacebookPublisher:
         self,
         *,
         body: str,
-        media: list[Path] | None = None,       # noqa: ARG002
+        media: list[Path] | None = None,
         hashtags: list[str] | None = None,     # noqa: ARG002
     ) -> PublishResult:
         token, page_id = _creds()
+        image = _first_image(media)
+
+        if image is not None:
+            return await self._publish_photo(token, page_id, image, body)
+        return await self._publish_text(token, page_id, body)
+
+    # ── text-only post ────────────────────────────────────────────────
+    async def _publish_text(self, token: str, page_id: str, body: str) -> PublishResult:
         url = f"{_GRAPH}/{page_id}/feed"
 
-        with span("publish.facebook", chars=len(body)):
+        with span("publish.facebook.text", chars=len(body)):
             async with httpx.AsyncClient(timeout=60.0) as c:
-                r = await c.post(url, params={
-                    "access_token": token,
-                    "message": body,
-                })
+                r = await c.post(url, params={"access_token": token, "message": body})
 
-        if r.status_code == 429:
-            raise RateLimited(f"facebook 429: {r.text[:200]}")
-        if r.status_code in (401, 403):
-            raise AuthFailed(f"facebook {r.status_code}: {r.text[:200]}")
-        if r.status_code >= 400:
-            raise PublishError(f"facebook {r.status_code}: {r.text[:200]}")
-
+        self._raise_for_status(r, "text")
         post_id = (r.json() or {}).get("id")
         if not post_id:
-            raise PublishError("facebook 2xx but no post id")
+            raise PublishError("facebook text 2xx but no post id")
 
-        url = f"https://www.facebook.com/{post_id}"
-        log.info("facebook published id=%s", post_id)
-        return PublishResult(platform="facebook", status="ok", post_id=post_id, url=url)
+        log.info("facebook text post id=%s", post_id)
+        return PublishResult(
+            platform="facebook", status="ok", post_id=post_id,
+            url=f"https://www.facebook.com/{post_id}",
+        )
+
+    # ── photo post ────────────────────────────────────────────────────
+    async def _publish_photo(self, token: str, page_id: str,
+                             image: Path, caption: str) -> PublishResult:
+        """
+        Upload a photo to /{page_id}/photos as a multipart form.
+
+        Facebook returns 2xx with `{id, post_id}`. We use `post_id` (the
+        feed story id) for the permalink, falling back to `id` (the photo
+        object id) if post_id is missing.
+        """
+        url = f"{_GRAPH}/{page_id}/photos"
+        img_bytes = image.read_bytes()
+
+        # multipart: everything except the file goes in `data`, the file
+        # itself goes in `files`.
+        data = {
+            "access_token": token,
+            "caption": caption,
+            "published": "true",
+        }
+        files = {
+            "source": (image.name, img_bytes, _mime_for(image)),
+        }
+
+        with span("publish.facebook.photo", bytes=len(img_bytes)):
+            async with httpx.AsyncClient(timeout=120.0) as c:
+                r = await c.post(url, data=data, files=files)
+
+        self._raise_for_status(r, "photo")
+        payload = r.json() or {}
+        post_id = payload.get("post_id") or payload.get("id")
+        if not post_id:
+            raise PublishError(f"facebook photo 2xx but no id: {payload}")
+
+        log.info("facebook photo post id=%s photo_id=%s", post_id, payload.get("id"))
+        return PublishResult(
+            platform="facebook", status="ok", post_id=str(post_id),
+            url=f"https://www.facebook.com/{post_id}",
+            meta={"photo_id": payload.get("id")},
+        )
+
+    # ── shared ────────────────────────────────────────────────────────
+    @staticmethod
+    def _raise_for_status(r: httpx.Response, kind: str) -> None:
+        if r.status_code == 429:
+            raise RateLimited(f"facebook {kind} 429: {r.text[:200]}")
+        if r.status_code in (401, 403):
+            raise AuthFailed(f"facebook {kind} {r.status_code}: {r.text[:200]}")
+        if r.status_code >= 400:
+            raise PublishError(f"facebook {kind} {r.status_code}: {r.text[:200]}")
 
     async def fetch_metrics(self, post_id: str) -> dict[str, Any]:
         token, _ = _creds()
@@ -87,3 +155,13 @@ class FacebookPublisher:
             "reactions": ((data.get("reactions") or {}).get("summary") or {}).get("total_count", 0),
             "raw": data,
         }
+
+
+def _mime_for(p: Path) -> str:
+    return {
+        ".png": "image/png",
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".gif": "image/gif",
+        ".webp": "image/webp",
+    }.get(p.suffix.lower(), "application/octet-stream")

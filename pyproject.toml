@@ -10,6 +10,7 @@ dependencies = [
   "langgraph-checkpoint-sqlite>=2.0.0",
   "langgraph-checkpoint-postgres>=2.0.0",
   "langchain-core>=0.3.0",
+  "huggingface_hub>=0.27",
 
   # models / settings
   "pydantic>=2.7",

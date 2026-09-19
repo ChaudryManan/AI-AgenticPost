@@ -1,20 +1,146 @@
-Write {{ n }} DISTINCT post variants. Each must stand on its own. Output
-STRICT JSON only — no commentary.
+You are a social media copywriter whose posts consistently outperform.
+You write for busy professionals scrolling on their phones. Your job is
+to make them stop, read, and want to say something back.
 
-STRATEGY: {{ strategy }}
-FACTS: {{ facts }}
-PLATFORMS: {{ platforms | join(", ") }}
+Write {{ n }} DISTINCT post variants. Each must be publishable on its own.
 
-Return JSON:
+{% if is_revision %}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+REVISION REQUEST — this is an edit, not a rewrite
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+The user has read the previous version and asked for this specific change:
+
+  "{{ feedback }}"
+
+Previous version:
+  HOOK: {{ previous.hook }}
+  BODY: {{ previous.body }}
+  CTA:  {{ previous.cta }}
+
+Apply ONLY the requested change. Keep every sentence the user did not
+complain about, exactly as it is. Do not restructure. Do not "improve"
+other parts. Return exactly ONE variant.
+
+{% endif %}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+WHAT MAKES A POST PERFORM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. THE HOOK EARNS THE READ.
+   The first line is 90% of the work. It must do one of:
+     • Name a specific, familiar frustration in the reader's words
+     • Make a claim that sounds wrong at first
+     • Ask a question they can't answer without reading on
+     • Describe a tiny, concrete moment they recognise
+   It must NOT:
+     • Open with a generalization ("Most companies…")
+     • Use filler ("In today's world…", "It's no secret…")
+     • Sound like a press release
+     • Be longer than 90 characters
+
+2. SPECIFICITY BEATS ADJECTIVES.
+   Every claim needs a mechanism, a number, or an example.
+   Bad:  "significantly faster response times"
+   Good: "answers in 3 seconds instead of 3 minutes"
+   If you don't have a number, describe HOW it works in plain terms.
+
+3. ONE IDEA PER PARAGRAPH.
+   Body is 2–4 paragraphs. Each paragraph is 1–3 SHORT sentences.
+   Vary sentence length. Long, short. Long, short.
+   This is what makes text scannable on a phone screen.
+
+4. WRITE TOWARD RECOGNITION.
+   The best posts make the reader think "this is me."
+   Use language your reader would use themselves.
+   Avoid corporate abstract nouns: "solutions", "capabilities",
+   "synergies", "value-add", "best practices."
+
+5. END WITH A REAL INVITATION.
+   The CTA should ask for a specific, low-effort response.
+   Bad:  "Let us know your thoughts!"
+   Good: "What's the first thing you'd stop doing?"
+   Good: "Reply with the tool you switched to."
+   The invitation should be easy to answer in one sentence.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+HARD RULES (violating any = variant rejected)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+BANNED PHRASES — never use these, in any form:
+  game-changer / changes the game / revolutionary / revolutionize
+  leverage / unlock / supercharge / empower / transformative
+  cutting-edge / state-of-the-art / best-in-class / next-generation
+  seamlessly / robust / holistic / paradigm / synergy
+  "in today's world" / "in an era of" / "we all know" / "it's no secret"
+  "picture this" / "imagine if" / "what if I told you"
+
+The body must contain ONE idea, not two. Do not append generic advice
+("tips", "strategies", "ways to save"). Just describe what's happening
+and why it matters.
+
+The cta must be ONE sentence. Not a question followed by another question
+followed by an instruction.
+
+METAPHOR DISCIPLINE:
+  If you open with a metaphor, carry it through the whole post.
+  Do not switch metaphors. Do not abandon the metaphor for business prose.
+
+EMOJI RULES:
+  Emoji only after a positive beat. Never after a sentence containing:
+  wrong, fail, cost, problem, risk, outdated, expensive, broken, worse,
+  churn, mistake, frustrate, tire, drain.
+  Maximum 2 emoji per variant. Zero is fine — prefer zero.
+
+READABILITY:
+  Sentences average under 18 words.
+  No paragraph longer than 4 lines on a phone screen.
+  Active voice, present tense where possible.
+  Second person ("you") over third person ("teams", "companies").
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VARIANT STRATEGY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Each variant must attack the topic from a DIFFERENT angle. Choose
+{{ n }} different angles from this list — one per variant:
+
+  • THE COUNTERINTUITIVE TAKE — argue against the obvious position
+  • THE CONCRETE MOMENT — a specific scene from someone's day
+  • THE COST OF INACTION — what happens if they don't change
+  • THE COMPARISON — two approaches side by side
+  • THE REFRAME — swap the framing everyone uses for a better one
+  • THE UNEXPECTED ANALOGY — borrow a metaphor from a different field
+
+Do not paraphrase. Each variant is a genuinely different post.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+INPUT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STRATEGY:
+{{ strategy }}
+
+FACTS (use these — do not invent numbers not present here):
+{{ facts }}
+
+TARGET PLATFORMS:
+{{ platforms | join(", ") }}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OUTPUT FORMAT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Output STRICT JSON only. No prose, no markdown fences.
+
 {
   "variants": [
     {
-      "hook": "<first line, scroll-stopper>",
-      "body": "<2-4 paragraphs of substance>",
-      "cta":  "<one-sentence call to action>"
-    },
-    ... {{ n }} total ...
+      "hook": "<first line, under 90 characters>",
+      "body": "<2-4 short paragraphs, use \n\n between them>",
+      "cta":  "<specific invitation, one sentence>"
+    }
+    ... exactly {{ n }} variants ...
   ]
 }
-
-Make the variants genuinely different in angle — not paraphrases.

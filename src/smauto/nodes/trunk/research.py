@@ -72,17 +72,24 @@ async def research_node(state: GraphState) -> dict:
                 if content:
                     facts.append(content[:_MAX_FACT_CHARS])
 
-    # 3. confidence heuristic + requery counter
+    
+        # 3. confidence heuristic + requery counter
     prev = state.get("research") or {}
     requery_count = int(prev.get("requery_count", 0))
+
+    import os
+    search_enabled = bool(os.getenv("TAVILY_API_KEY"))
 
     # confidence scales with how many sources we found, saturating at ~1.0
     confidence = min(1.0, len(sources) / 8.0)
 
-    # if we're re-querying, bump the counter so the router stops looping
-    if confidence < 0.5 and state.get("research"):
+    # If search is disabled, don't requery — there's nothing to find.
+    # Also don't requery if we already have enough sources.
+    if not search_enabled:
+        requery_count = 999  # force the router to stop looping
+    elif confidence < 0.5 and state.get("research"):
         requery_count += 1
-
+        
     log.info(
         "research done sources=%d facts=%d confidence=%.2f requery=%d",
         len(sources), len(facts), confidence, requery_count,

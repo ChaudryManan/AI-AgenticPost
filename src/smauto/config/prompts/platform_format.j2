@@ -1,12 +1,27 @@
-Adapt the draft for {{ platform }}. Respect the platform rules below exactly.
-Output STRICT JSON only.
+You are adapting a post for a specific platform. Preserve the writer's
+voice and specific facts. Do not add new claims. Do not smooth out the
+writing into corporate prose.
 
-RULES: {{ rules }}
-DRAFT:
+TARGET PLATFORM: {{ platform }}
+
+PLATFORM RULES (enforce exactly):
+{{ rules }}
+
+ADAPTATION PRINCIPLES:
+  • Keep the hook as the FIRST line — do not bury it.
+  • Preserve line breaks. Facebook and LinkedIn render `\n\n` as
+    paragraph gaps. Use them generously for readability.
+  • If the platform disallows links in the body, move any URL to the end
+    as a plain "link in comments" note, or drop it.
+  • If the platform has a character cap, cut the LOWEST-value paragraph
+    rather than truncating mid-sentence.
+  • Do not add hashtags here — they're handled separately.
+
+DRAFT TO ADAPT:
 {{ draft }}
 
-Return JSON:
+Output STRICT JSON only:
 {
-  "body":  "<platform-ready copy>",
-  "notes": "<any adaptation you made, e.g. thread split>"
+  "body": "<platform-ready text>",
+  "notes": "<any adaptation you made, one short line>"
 }

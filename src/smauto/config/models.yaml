@@ -3,83 +3,46 @@
 # Every node calls  LLMClient.json(node_name, ...)  and this file decides
 # the provider/model/temperature.  Swap providers per node freely.
 #
-# Supported providers: openai | anthropic | gemini
+# Supported providers: openai | anthropic | gemini | openrouter
 # ─────────────────────────────────────────────────────────────────────
 llm:
   default:
-    provider: openrouter
-    model: "cohere/north-mini-code:free"
+    provider: gemini
+    model: "gemini-3.8-flash"
     fallback:
-      - "poolside/laguna-s-2.1:free"
-      - "google/gemma-4-31b-it:free"
+      - "gemini-3.6-flash"
+      - "gemini-flash-lite-latest"
+      - "gemini-3.5-flash-lite"
+      - "gemini-3.1-flash-lite"
     temperature: 0.6
 
-  # everything else stays as-is
-  planner:
-    provider: openrouter
-    model: "cohere/north-mini-code:free"
-    temperature: 0.3
-  research:
-    provider: openrouter
-    model: "cohere/north-mini-code:free"
-    temperature: 0.2
-  strategy:
-    provider: openrouter
-    model: "cohere/north-mini-code:free"
-    temperature: 0.7
-  script:
-    provider: openrouter
-    model: "cohere/north-mini-code:free"
-    temperature: 0.7
-  storyboard:
-    provider: openrouter
-    model: "cohere/north-mini-code:free"
-    temperature: 0.5
-  characters:
-    provider: openrouter
-    model: "cohere/north-mini-code:free"
-    temperature: 0.4
-  scene_prompts:
-    provider: openrouter
-    model: "cohere/north-mini-code:free"
-    temperature: 0.6
-  caption_writer:
-    provider: openrouter
-    model: "cohere/north-mini-code:free"
-    temperature: 0.7
-  copywriter:
-    provider: openrouter
-    model: "cohere/north-mini-code:free"
-    temperature: 0.8
-  scorer:
-    provider: openrouter
-    model: "cohere/north-mini-code:free"
-    temperature: 0.1
-  platform_format:
-    provider: openrouter
-    model: "cohere/north-mini-code:free"
-    temperature: 0.5
-  hashtags:
-    provider: openrouter
-    model: "cohere/north-mini-code:free"
-    temperature: 0.5
-  slide_splitter:
-    provider: openrouter
-    model: "cohere/north-mini-code:free"
-    temperature: 0.4
-  fact_check:
-    provider: openrouter
-    model: "cohere/north-mini-code:free"
-    temperature: 0.0
+  planner:          { temperature: 0.3 }
+  research:         { temperature: 0.2 }
+  strategy:         { temperature: 0.7 }
+  script:           { temperature: 0.7 }
+  storyboard:       { temperature: 0.5 }
+  characters:       { temperature: 0.4 }
+  scene_prompts:    { temperature: 0.6 }
+  caption_writer:   { temperature: 0.7 }
+  copywriter:       { temperature: 0.8 }
+  scorer:           { temperature: 0.1 }
+  platform_format:  { temperature: 0.5 }
+  hashtags:         { temperature: 0.5 }
+  slide_splitter:   { temperature: 0.4 }
+  image_prompt:     { temperature: 0.6 }
+  fact_check:       { temperature: 0.0 }
+
 # ─────────────────────────────────────────────────────────────────────
 # Media generators
 # ─────────────────────────────────────────────────────────────────────
 
 image_gen:
   default:
-    provider: replicate
-    model: "black-forest-labs/flux-schnell"
-
+    provider: huggingface
+    model: "black-forest-labs/FLUX.1-schnell"
+    fallback:
+      - "black-forest-labs/FLUX.1-dev"
+      - "stabilityai/stable-diffusion-xl-base-1.0"
 video_gen:
   default:
     provider: replicate

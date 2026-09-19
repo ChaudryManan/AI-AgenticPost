@@ -38,3 +38,9 @@ class ApprovalDecision(BaseModel):
 class ClarifyAnswer(BaseModel):
     """The user's reply to a clarification question."""
     answer: str = Field(..., min_length=1, max_length=2000)
+
+
+class EditRequest(BaseModel):
+    """User feedback that drives a targeted revision of the current draft."""
+    feedback: str = Field(..., min_length=2, max_length=1000)
+    editor: str | None = Field(default=None, max_length=128)    

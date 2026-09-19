@@ -71,7 +71,10 @@ async def _run_once(topic, content_type, platforms, run_id):
                 ans = input("  Approve and publish? [y/N] ").strip().lower()
             except EOFError:
                 ans = "n"
-            decision = "approved" if ans == "y" else "rejected"
+            # accept y, yes, =y, =yes — users often paste from markdown blocks
+            ans = ans.lstrip("= ").strip()
+            decision = "approved" if ans in ("y", "yes") else "rejected"
+
             await graph.aupdate_state(config, {
                 "approval": {"status": decision, "editor": "cli",
                              "notes": "cli decision"},
@@ -123,7 +126,9 @@ def main(argv=None):
     p_run.add_argument("--topic", required=True)
     p_run.add_argument("--type", default="text",
                        choices=["video", "text", "both"])
-    p_run.add_argument("--platforms", default="linkedin")
+    p_run.add_argument("--platforms", default="",
+                       help="comma-separated, e.g. 'linkedin,x,youtube' "
+                            "(if omitted, parsed from the topic)")
     p_run.add_argument("--run-id", default=None)
     p_run.set_defaults(func=_cmd_run)
 

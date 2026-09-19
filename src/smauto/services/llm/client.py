@@ -24,7 +24,8 @@ from ...infra.logging import get_logger
 from ...infra.tracing import span
 from . import providers
 from .structured import parse_json
-
+import asyncio
+import random
 log = get_logger("llm")
 
 # A process-wide meter.  Nodes that want per-run accounting can pass their
@@ -42,8 +43,11 @@ class LLMClient:
 
     # ── public API ────────────────────────────────────────────────────
     def _resolve(self, node: str) -> dict[str, Any]:
-        cfg = self._models.get(node) or self._models["default"]
-        # env override: DEFAULT_LLM_PROVIDER=anthropic forces every node
+        default = self._models["default"]
+        node_cfg = self._models.get(node) or {}
+        # merge: node overrides default, but inherits anything it doesn't set
+        # (notably `fallback` and `provider`)
+        cfg = {**default, **node_cfg}
         forced = os.getenv("DEFAULT_LLM_PROVIDER")
         if forced:
             cfg = {**cfg, "provider": forced}
@@ -66,7 +70,7 @@ class LLMClient:
             {"role": "user", "content": user},
         ]
 
-        # build the model chain: primary first, then fallbacks
+        # Build the model chain: primary first, then fallbacks.
         primary = cfg["model"]
         fallbacks = cfg.get("fallback") or []
         if isinstance(fallbacks, str):
@@ -74,57 +78,87 @@ class LLMClient:
         chain = [primary, *fallbacks]
 
         last_err: Exception | None = None
+
         for idx, model in enumerate(chain):
-            is_fallback = idx > 0
-            try:
-                with span(f"llm.{node}" + (" (fallback)" if is_fallback else ""),
-                          provider=provider, model=model):
-                    if provider == "openai":
-                        raw = await providers.openai_chat(model, messages, temperature, json_mode)
-                        text = raw["choices"][0]["message"]["content"]
-                        usage = raw.get("usage") or {}
-                        in_tok = int(usage.get("prompt_tokens", 0))
-                        out_tok = int(usage.get("completion_tokens", 0))
-                    elif provider == "openrouter":
-                        raw = await providers.openrouter_chat(model, messages, temperature, json_mode)
-                        text = raw["choices"][0]["message"]["content"]
-                        usage = raw.get("usage") or {}
-                        in_tok = int(usage.get("prompt_tokens", 0))
-                        out_tok = int(usage.get("completion_tokens", 0))
-                    elif provider == "anthropic":
-                        raw = await providers.anthropic_chat(model, messages, temperature, json_mode)
-                        text = raw["content"][0]["text"]
-                        usage = raw.get("usage") or {}
-                        in_tok = int(usage.get("input_tokens", 0))
-                        out_tok = int(usage.get("output_tokens", 0))
-                    elif provider == "gemini":
-                        raw = await providers.gemini_chat(model, messages, temperature, json_mode)
-                        text = raw["candidates"][0]["content"]["parts"][0]["text"]
-                        usage = raw.get("usageMetadata") or {}
-                        in_tok = int(usage.get("promptTokenCount", 0))
-                        out_tok = int(usage.get("candidatesTokenCount", 0))
-                    else:
-                        raise ValueError(f"unknown provider: {provider}")
+                    last_err: Exception | None = None
 
-                if is_fallback:
-                    log.warning("llm.%s: primary was %r, served by fallback %r",
-                                node, primary, model)
+        # Try the whole chain. If every model fails on a transient error,
+        # wait and try the chain again. This handles Google-wide 503 spikes.
+        chain_attempts = 2
+        for chain_try in range(chain_attempts):
+            for idx, model in enumerate(chain):
+                is_fallback = idx > 0
+                try:
+                    with span(f"llm.{node}" + (" (fallback)" if is_fallback else ""),
+                              provider=provider, model=model):
+                        if provider == "openai":
+                            raw = await providers.openai_chat(model, messages, temperature, json_mode)
+                            text = raw["choices"][0]["message"]["content"]
+                            usage = raw.get("usage") or {}
+                            in_tok = int(usage.get("prompt_tokens", 0))
+                            out_tok = int(usage.get("completion_tokens", 0))
+                        elif provider == "openrouter":
+                            raw = await providers.openrouter_chat(model, messages, temperature, json_mode)
+                            text = raw["choices"][0]["message"]["content"]
+                            usage = raw.get("usage") or {}
+                            in_tok = int(usage.get("prompt_tokens", 0))
+                            out_tok = int(usage.get("completion_tokens", 0))
+                        elif provider == "anthropic":
+                            raw = await providers.anthropic_chat(model, messages, temperature, json_mode)
+                            text = raw["content"][0]["text"]
+                            usage = raw.get("usage") or {}
+                            in_tok = int(usage.get("input_tokens", 0))
+                            out_tok = int(usage.get("output_tokens", 0))
+                        elif provider == "gemini":
+                            raw = await providers.gemini_chat(model, messages, temperature, json_mode)
+                            text = raw["candidates"][0]["content"]["parts"][0]["text"]
+                            usage = raw.get("usageMetadata") or {}
+                            in_tok = int(usage.get("promptTokenCount", 0))
+                            out_tok = int(usage.get("candidatesTokenCount", 0))
+                        else:
+                            raise ValueError(f"unknown provider: {provider}")
 
-                (meter or _DEFAULT_METER).charge(model, in_tok, out_tok, node)
-                return text
+                    if is_fallback:
+                        log.warning("llm.%s: primary was %r, served by fallback %r",
+                                    node, primary, model)
+                    (meter or _DEFAULT_METER).charge(model, in_tok, out_tok, node)
+                    return text
 
-            except providers.ProviderError as e:
-                msg = str(e)
-                # only fall through on transient upstream errors
-                transient = " 429" in msg or " 404" in msg or "503" in msg or "502" in msg
-                last_err = e
-                if transient and idx < len(chain) - 1:
-                    log.warning("llm.%s: model %r failed (%s); trying next in chain",
-                                node, model, msg[:80])
-                    continue
-                raise
+                except providers.ProviderError as e:
+                    msg = str(e)
+                    last_err = e
+                    # 404 means the model name doesn't exist — skip to next immediately
+                    not_found = " 404" in msg
+                    # transient = overload / rate limit
+                    transient = any(code in msg for code in
+                                    (" 429", " 500", " 502", " 503", " 504",
+                                     "timeout", "network"))
 
-        # only reachable if every model in the chain failed
+                    if not_found:
+                        log.warning("llm.%s: model %r not available (404); skipping",
+                                    node, model)
+                        continue
+                    if transient and idx < len(chain) - 1:
+                        log.warning("llm.%s: model %r overloaded (%s); trying next",
+                                    node, model, msg[:60])
+                        await asyncio.sleep(1.0 + random.uniform(0, 0.5))
+                        continue
+                    if transient and idx == len(chain) - 1:
+                        # last model in chain also overloaded → break to outer retry
+                        break
+                    # non-transient, non-404 → raise
+                    raise
+
+            # all models in the chain failed on this pass
+            if chain_try < chain_attempts - 1:
+                wait = 15.0 + random.uniform(0, 5.0)
+                log.warning("llm.%s: full chain failed; waiting %.0fs and retrying",
+                            node, wait)
+                await asyncio.sleep(wait)
+
+        assert last_err is not None
+        raise last_err
+
         assert last_err is not None
         raise last_err
     async def json(

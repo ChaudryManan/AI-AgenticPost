@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>smauto — testing console</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+  <header>
+    <h1>smauto</h1>
+    <span class="sub">social media pipeline — testing console</span>
+  </header>
+
+  <main>
+
+    <!-- ── Input form ────────────────────────────────────────── -->
+    <section class="card" id="form-card">
+      <h2>1. What should the post say?</h2>
+
+      <label for="topic">Topic / prompt</label>
+      <textarea id="topic" rows="4"
+        placeholder="e.g. Argue that petrol price increases in Pakistan are an invisible tax on the middle class..."></textarea>
+
+      <div class="row">
+        <div class="field">
+          <label>Content type</label>
+          <div class="radios">
+            <label><input type="radio" name="ctype" value="text" checked /> Text</label>
+            <label><input type="radio" name="ctype" value="video" /> Video</label>
+            <label><input type="radio" name="ctype" value="both" /> Both</label>
+          </div>
+              <div class="field hidden" id="previous-field">
+        <label>Previous version (before your edit)</label>
+        <div class="post-body previous-body" id="previous-body"></div>
+      </div>  
+        </div>
+
+
+
+        <div class="field">
+          <label>Platforms</label>
+          <div class="checks">
+            <label><input type="checkbox" value="facebook" checked /> Facebook</label>
+            <label><input type="checkbox" value="linkedin" /> LinkedIn</label>
+            <label><input type="checkbox" value="x" /> X</label>
+            <label><input type="checkbox" value="instagram" /> Instagram</label>
+          </div>
+        </div>
+      </div>
+
+      <button id="generate-btn">Generate</button>
+    </section>
+
+    <!-- ── Status ─────────────────────────────────────────────── -->
+    <section class="card hidden" id="status-card">
+      <div class="status-row">
+        <div class="spinner" id="spinner"></div>
+        <span id="status-text">Idle</span>
+      </div>
+      <div class="progress"><div class="bar" id="progress-bar"></div></div>
+      <p class="hint" id="run-id-line"></p>
+    </section>
+
+    <!-- ── Result preview ─────────────────────────────────────── -->
+    <section class="card hidden" id="result-card">
+      <h2>2. Review before publishing</h2>
+
+      <div class="field">
+        <label>Hook</label>
+        <p class="hook" id="hook"></p>
+      </div>
+
+      <div class="field">
+        <label>Post text</label>
+        <div class="post-body" id="post-body"></div>
+      </div>
+
+      <div class="field" id="hashtags-field">
+        <label>Hashtags</label>
+        <p class="hashtags" id="hashtags"></p>
+      </div>
+
+      <div class="field hidden" id="images-field">
+        <label>Images</label>
+        <div class="image-grid" id="images"></div>
+      </div>
+
+      <div class="field" id="qa-field">
+        <label>QA</label>
+        <p id="qa-summary"></p>
+      </div>
+
+            <div class="actions">
+        <button id="approve-btn" class="primary">✓ Approve & publish</button>
+        <button id="edit-btn" class="secondary">✎ Edit</button>
+        <button id="reject-btn" class="danger">✕ Reject</button>
+      </div>
+
+      <div class="edit-panel hidden" id="edit-panel">
+        <label for="edit-feedback">What should change?</label>
+        <textarea id="edit-feedback" rows="3"
+          placeholder="e.g. make the hook more personal, drop the second paragraph, add a concrete number"></textarea>
+        <div class="edit-actions">
+          <button id="apply-edit-btn" class="primary">Apply changes</button>
+          <button id="cancel-edit-btn" class="secondary">Cancel</button>
+        </div>
+        <p class="hint" id="edit-hint"></p>
+      </div>
+    </section>
+
+    <!-- ── Final result ───────────────────────────────────────── -->
+    <section class="card hidden" id="final-card">
+      <h2>3. Published</h2>
+      <div id="final-body"></div>
+      <button id="reset-btn" class="secondary">Start another</button>
+    </section>
+
+    <!-- ── Error banner ───────────────────────────────────────── -->
+    <section class="card error hidden" id="error-card">
+      <strong>Error:</strong>
+      <pre id="error-text"></pre>
+      <button id="error-dismiss" class="secondary">Dismiss</button>
+    </section>
+
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

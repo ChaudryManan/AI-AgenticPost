@@ -44,13 +44,22 @@ async def fact_check_node(state: GraphState) -> dict:
         draft.get("cta") or "",
     ]))
 
-    # 1. local numeric heuristic
+    
+        # 1. local numeric heuristic — only meaningful if we have sources to
+    #    check against.  With no research data, every number would flag as
+    #    "unsupported" and create an infinite revision loop.
+    sources = research.get("sources", [])
+    facts = research.get("facts", [])
     claims = _extract_claims(full_text)
-    heuristic_fails = check_grounding(
-        claims=claims,
-        sources=research.get("sources", []),
-        facts=research.get("facts", []),
-    )
+
+    if sources or facts:
+        heuristic_fails = check_grounding(
+            claims=claims,
+            sources=sources,
+            facts=facts,
+        )
+    else:
+        heuristic_fails = []
 
     # 2. LLM semantic check (only if we have sources to check against)
     llm_fails: list[dict] = []
@@ -66,7 +75,10 @@ async def fact_check_node(state: GraphState) -> dict:
                     system="You are a strict fact-checker. Output strict JSON.",
                     user=prompt,
                 )
-                llm_fails = data.get("failures") or []
+                raw_fails = data.get("failures") or []
+                # downgrade LLM verdicts to soft — only the numeric
+                # heuristic above should ever trigger a hard revision
+                llm_fails = [{**f, "severity": "soft"} for f in raw_fails]
             except Exception as e:  # noqa: BLE001
                 log.warning("LLM fact check failed: %s", e)
 
